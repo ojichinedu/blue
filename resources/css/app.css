@@ -605,3 +605,22 @@ nav[role="navigation"] span[aria-current="page"] > span {
 .light-mode tr.hover\:bg-white\/5:hover {
     background-color: #f8fafc !important;
 }
+
+/* Custom Overrides for Readability and Contrast */
+.light-mode .text-slate-300 {
+    color: #334155 !important;
+}
+
+.light-mode [class*="via-slate-950"],
+.light-mode [class*="to-slate-950"],
+.light-mode [class*="from-blue-900/20"],
+.light-mode [class*="from-blue-900/10"] {
+    background-image: radial-gradient(circle at top, rgba(59, 130, 246, 0.04), #f8fafc, #f8fafc) !important;
+    background-color: #f8fafc !important;
+}
+
+.light-mode .hero-glow {
+    background: radial-gradient(circle, rgba(59, 130, 246, 0.08) 0%, rgba(59, 130, 246, 0) 70%) !important;
+    opacity: 0.5;
+}
+

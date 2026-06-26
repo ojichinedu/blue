@@ -15,9 +15,8 @@
     <!-- Leaflet CSS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 
-    <!-- Scripts -->
     <script>
-        if (localStorage.getItem('theme') === 'light' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: light)').matches)) {
+        if (localStorage.getItem('theme') === 'light') {
             document.documentElement.classList.add('light-mode');
         } else {
             document.documentElement.classList.remove('light-mode');
