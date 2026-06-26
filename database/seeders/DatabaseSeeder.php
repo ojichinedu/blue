@@ -15,8 +15,15 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        $this->call([
-            ShipmentSeeder::class,
-        ]);
+        // Create admin user
+        User::updateOrCreate(
+            ['email' => 'admin@blueorientlogistics.org'],
+            [
+                'name' => 'Admin User',
+                'password' => \Illuminate\Support\Facades\Hash::make('password'),
+                'is_admin' => true,
+                'email_verified_at' => now(),
+            ]
+        );
     }
 }
