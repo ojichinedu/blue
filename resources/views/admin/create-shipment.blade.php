@@ -133,38 +133,119 @@
                 </div>
                 <div class="grid md:grid-cols-3 gap-6">
                     <div class="space-y-4">
-                        <h4 class="text-sm font-semibold text-blue-400">Origin coordinates</h4>
+                        <h4 class="text-sm font-semibold text-blue-400">Origin Location</h4>
+                        <div>
+                            <label class="form-label !text-xs">Country Preset</label>
+                            <select id="origin_country_preset" class="form-select !py-2" onchange="updateCoordinates('origin', this.value)">
+                                <option value="">-- Custom Location --</option>
+                                <option value="US" selected>United States (New York)</option>
+                                <option value="UK">United Kingdom (London)</option>
+                                <option value="DE">Germany (Berlin)</option>
+                                <option value="FR">France (Paris)</option>
+                                <option value="CN">China (Beijing)</option>
+                                <option value="CA">Canada (Ottawa)</option>
+                                <option value="AU">Australia (Canberra)</option>
+                                <option value="JP">Japan (Tokyo)</option>
+                                <option value="IN">India (New Delhi)</option>
+                                <option value="NG">Nigeria (Abuja)</option>
+                                <option value="AE">United Arab Emirates (Abu Dhabi)</option>
+                                <option value="SA">Saudi Arabia (Riyadh)</option>
+                                <option value="ZA">South Africa (Cape Town)</option>
+                                <option value="BR">Brazil (Brasilia)</option>
+                                <option value="SG">Singapore</option>
+                                <option value="TR">Turkey (Ankara)</option>
+                                <option value="IT">Italy (Rome)</option>
+                                <option value="ES">Spain (Madrid)</option>
+                                <option value="NL">Netherlands (Amsterdam)</option>
+                                <option value="BE">Belgium (Brussels)</option>
+                                <option value="CH">Switzerland (Bern)</option>
+                            </select>
+                        </div>
                         <div>
                             <label class="form-label !text-xs">Latitude</label>
-                            <input type="number" step="0.000001" name="origin_lat" class="form-input !py-2" value="{{ old('origin_lat', '40.712800') }}" required>
+                            <input type="number" step="0.000001" name="origin_lat" id="origin_lat" class="form-input !py-2" value="{{ old('origin_lat', '40.712800') }}" required>
                         </div>
                         <div>
                             <label class="form-label !text-xs">Longitude</label>
-                            <input type="number" step="0.000001" name="origin_lng" class="form-input !py-2" value="{{ old('origin_lng', '-74.006000') }}" required>
+                            <input type="number" step="0.000001" name="origin_lng" id="origin_lng" class="form-input !py-2" value="{{ old('origin_lng', '-74.006000') }}" required>
                         </div>
                     </div>
 
                     <div class="space-y-4">
-                        <h4 class="text-sm font-semibold text-cyan-400">Destination coordinates</h4>
+                        <h4 class="text-sm font-semibold text-cyan-400">Destination Location</h4>
+                        <div>
+                            <label class="form-label !text-xs">Country Preset</label>
+                            <select id="destination_country_preset" class="form-select !py-2" onchange="updateCoordinates('destination', this.value)">
+                                <option value="">-- Custom Location --</option>
+                                <option value="US">United States (New York)</option>
+                                <option value="UK" selected>United Kingdom (London)</option>
+                                <option value="DE">Germany (Berlin)</option>
+                                <option value="FR">France (Paris)</option>
+                                <option value="CN">China (Beijing)</option>
+                                <option value="CA">Canada (Ottawa)</option>
+                                <option value="AU">Australia (Canberra)</option>
+                                <option value="JP">Japan (Tokyo)</option>
+                                <option value="IN">India (New Delhi)</option>
+                                <option value="NG">Nigeria (Abuja)</option>
+                                <option value="AE">United Arab Emirates (Abu Dhabi)</option>
+                                <option value="SA">Saudi Arabia (Riyadh)</option>
+                                <option value="ZA">South Africa (Cape Town)</option>
+                                <option value="BR">Brazil (Brasilia)</option>
+                                <option value="SG">Singapore</option>
+                                <option value="TR">Turkey (Ankara)</option>
+                                <option value="IT">Italy (Rome)</option>
+                                <option value="ES">Spain (Madrid)</option>
+                                <option value="NL">Netherlands (Amsterdam)</option>
+                                <option value="BE">Belgium (Brussels)</option>
+                                <option value="CH">Switzerland (Bern)</option>
+                            </select>
+                        </div>
                         <div>
                             <label class="form-label !text-xs">Latitude</label>
-                            <input type="number" step="0.000001" name="destination_lat" class="form-input !py-2" value="{{ old('destination_lat', '51.507400') }}" required>
+                            <input type="number" step="0.000001" name="destination_lat" id="destination_lat" class="form-input !py-2" value="{{ old('destination_lat', '51.507400') }}" required>
                         </div>
                         <div>
                             <label class="form-label !text-xs">Longitude</label>
-                            <input type="number" step="0.000001" name="destination_lng" class="form-input !py-2" value="{{ old('destination_lng', '-0.127800') }}" required>
+                            <input type="number" step="0.000001" name="destination_lng" id="destination_lng" class="form-input !py-2" value="{{ old('destination_lng', '-0.127800') }}" required>
                         </div>
                     </div>
 
                     <div class="space-y-4">
-                        <h4 class="text-sm font-semibold text-emerald-400">Current Position coordinates</h4>
+                        <h4 class="text-sm font-semibold text-emerald-400">Current Position Location</h4>
+                        <div>
+                            <label class="form-label !text-xs">Country Preset</label>
+                            <select id="current_country_preset" class="form-select !py-2" onchange="updateCoordinates('current', this.value)">
+                                <option value="">-- Custom Location --</option>
+                                <option value="US" selected>United States (New York)</option>
+                                <option value="UK">United Kingdom (London)</option>
+                                <option value="DE">Germany (Berlin)</option>
+                                <option value="FR">France (Paris)</option>
+                                <option value="CN">China (Beijing)</option>
+                                <option value="CA">Canada (Ottawa)</option>
+                                <option value="AU">Australia (Canberra)</option>
+                                <option value="JP">Japan (Tokyo)</option>
+                                <option value="IN">India (New Delhi)</option>
+                                <option value="NG">Nigeria (Abuja)</option>
+                                <option value="AE">United Arab Emirates (Abu Dhabi)</option>
+                                <option value="SA">Saudi Arabia (Riyadh)</option>
+                                <option value="ZA">South Africa (Cape Town)</option>
+                                <option value="BR">Brazil (Brasilia)</option>
+                                <option value="SG">Singapore</option>
+                                <option value="TR">Turkey (Ankara)</option>
+                                <option value="IT">Italy (Rome)</option>
+                                <option value="ES">Spain (Madrid)</option>
+                                <option value="NL">Netherlands (Amsterdam)</option>
+                                <option value="BE">Belgium (Brussels)</option>
+                                <option value="CH">Switzerland (Bern)</option>
+                            </select>
+                        </div>
                         <div>
                             <label class="form-label !text-xs">Latitude</label>
-                            <input type="number" step="0.000001" name="current_lat" class="form-input !py-2" value="{{ old('current_lat', '40.712800') }}" required>
+                            <input type="number" step="0.000001" name="current_lat" id="current_lat" class="form-input !py-2" value="{{ old('current_lat', '40.712800') }}" required>
                         </div>
                         <div>
                             <label class="form-label !text-xs">Longitude</label>
-                            <input type="number" step="0.000001" name="current_lng" class="form-input !py-2" value="{{ old('current_lng', '-74.006000') }}" required>
+                            <input type="number" step="0.000001" name="current_lng" id="current_lng" class="form-input !py-2" value="{{ old('current_lng', '-74.006000') }}" required>
                         </div>
                     </div>
                 </div>
@@ -183,3 +264,59 @@
     </div>
 </div>
 @endsection
+
+@push('scripts')
+<script>
+    const countryCoords = {
+        'US': { lat: 40.712800, lng: -74.006000 },
+        'UK': { lat: 51.507400, lng: -0.127800 },
+        'CN': { lat: 39.904200, lng: 116.407400 },
+        'DE': { lat: 52.520000, lng: 13.405000 },
+        'FR': { lat: 48.856600, lng: 2.352200 },
+        'CA': { lat: 45.421500, lng: -75.697200 },
+        'AU': { lat: -35.280900, lng: 149.130000 },
+        'JP': { lat: 35.676200, lng: 139.650300 },
+        'IN': { lat: 28.613900, lng: 77.209000 },
+        'NG': { lat: 9.082000, lng: 8.675300 },
+        'AE': { lat: 24.453900, lng: 54.377300 },
+        'SA': { lat: 24.713600, lng: 46.675300 },
+        'ZA': { lat: -33.924900, lng: 18.424100 },
+        'BR': { lat: -15.793800, lng: -47.882800 },
+        'SG': { lat: 1.352100, lng: 103.819800 },
+        'TR': { lat: 39.933400, lng: 32.859700 },
+        'IT': { lat: 41.902800, lng: 12.496400 },
+        'ES': { lat: 40.416800, lng: -3.703800 },
+        'NL': { lat: 52.367600, lng: 4.904100 },
+        'BE': { lat: 50.850300, lng: 4.351700 },
+        'CH': { lat: 46.948000, lng: 7.447400 }
+    };
+
+    function updateCoordinates(type, countryCode) {
+        if (!countryCode || !countryCoords[countryCode]) return;
+        
+        const latInput = document.getElementById(type + '_lat');
+        const lngInput = document.getElementById(type + '_lng');
+        
+        if (latInput && lngInput) {
+            latInput.value = countryCoords[countryCode].lat.toFixed(6);
+            lngInput.value = countryCoords[countryCode].lng.toFixed(6);
+        }
+        
+        // Auto-sync current position if updating origin on create page
+        if (type === 'origin') {
+            const currentLat = document.getElementById('current_lat');
+            const currentLng = document.getElementById('current_lng');
+            const currentSelect = document.getElementById('current_country_preset');
+            
+            if (currentLat && currentLng) {
+                currentLat.value = countryCoords[countryCode].lat.toFixed(6);
+                currentLng.value = countryCoords[countryCode].lng.toFixed(6);
+            }
+            if (currentSelect) {
+                currentSelect.value = countryCode;
+            }
+        }
+    }
+</script>
+@endpush
+

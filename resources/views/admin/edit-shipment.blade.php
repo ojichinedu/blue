@@ -4,6 +4,55 @@
 @section('page_title', 'Edit Shipment ' . $shipment->tracking_number)
 
 @section('content')
+@php
+    $originPreset = '';
+    $destPreset = '';
+    $currentPreset = '';
+    $presets = [
+        'US' => [40.712800, -74.006000],
+        'UK' => [51.507400, -0.127800],
+        'CN' => [39.904200, 116.407400],
+        'DE' => [52.520000, 13.405000],
+        'FR' => [48.856600, 2.352200],
+        'CA' => [45.421500, -75.697200],
+        'AU' => [-35.280900, 149.130000],
+        'JP' => [35.676200, 139.650300],
+        'IN' => [28.613900, 77.209000],
+        'NG' => [9.082000, 8.675300],
+        'AE' => [24.453900, 54.377300],
+        'SA' => [24.713600, 46.675300],
+        'ZA' => [-33.924900, 18.424100],
+        'BR' => [-15.793800, -47.882800],
+        'SG' => [1.352100, 103.819800],
+        'TR' => [39.933400, 32.859700],
+        'IT' => [41.902800, 12.496400],
+        'ES' => [40.416800, -3.703800],
+        'NL' => [52.367600, 4.904100],
+        'BE' => [50.850300, 4.351700],
+        'CH' => [46.948000, 7.447400]
+    ];
+    
+    foreach ($presets as $code => $coords) {
+        if (abs((float)$shipment->origin_lat - $coords[0]) < 0.0001 && abs((float)$shipment->origin_lng - $coords[1]) < 0.0001) {
+            $originPreset = $code;
+            break;
+        }
+    }
+    
+    foreach ($presets as $code => $coords) {
+        if (abs((float)$shipment->destination_lat - $coords[0]) < 0.0001 && abs((float)$shipment->destination_lng - $coords[1]) < 0.0001) {
+            $destPreset = $code;
+            break;
+        }
+    }
+
+    foreach ($presets as $code => $coords) {
+        if (abs((float)$shipment->current_lat - $coords[0]) < 0.0001 && abs((float)$shipment->current_lng - $coords[1]) < 0.0001) {
+            $currentPreset = $code;
+            break;
+        }
+    }
+@endphp
 <div class="max-w-4xl mx-auto">
     <div class="mb-6 flex justify-between items-center">
         <a href="{{ route('admin.shipment.show', $shipment->id) }}" class="btn-secondary btn-sm flex items-center gap-2">
@@ -134,38 +183,119 @@
                 </div>
                 <div class="grid md:grid-cols-3 gap-6">
                     <div class="space-y-4">
-                        <h4 class="text-sm font-semibold text-blue-400">Origin coordinates</h4>
+                        <h4 class="text-sm font-semibold text-blue-400">Origin Location</h4>
+                        <div>
+                            <label class="form-label !text-xs">Country Preset</label>
+                            <select id="origin_country_preset" class="form-select !py-2" onchange="updateCoordinates('origin', this.value)">
+                                <option value="">-- Custom Location --</option>
+                                <option value="US" {{ $originPreset === 'US' ? 'selected' : '' }}>United States (New York)</option>
+                                <option value="UK" {{ $originPreset === 'UK' ? 'selected' : '' }}>United Kingdom (London)</option>
+                                <option value="DE" {{ $originPreset === 'DE' ? 'selected' : '' }}>Germany (Berlin)</option>
+                                <option value="FR" {{ $originPreset === 'FR' ? 'selected' : '' }}>France (Paris)</option>
+                                <option value="CN" {{ $originPreset === 'CN' ? 'selected' : '' }}>China (Beijing)</option>
+                                <option value="CA" {{ $originPreset === 'CA' ? 'selected' : '' }}>Canada (Ottawa)</option>
+                                <option value="AU" {{ $originPreset === 'AU' ? 'selected' : '' }}>Australia (Canberra)</option>
+                                <option value="JP" {{ $originPreset === 'JP' ? 'selected' : '' }}>Japan (Tokyo)</option>
+                                <option value="IN" {{ $originPreset === 'IN' ? 'selected' : '' }}>India (New Delhi)</option>
+                                <option value="NG" {{ $originPreset === 'NG' ? 'selected' : '' }}>Nigeria (Abuja)</option>
+                                <option value="AE" {{ $originPreset === 'AE' ? 'selected' : '' }}>United Arab Emirates (Abu Dhabi)</option>
+                                <option value="SA" {{ $originPreset === 'SA' ? 'selected' : '' }}>Saudi Arabia (Riyadh)</option>
+                                <option value="ZA" {{ $originPreset === 'ZA' ? 'selected' : '' }}>South Africa (Cape Town)</option>
+                                <option value="BR" {{ $originPreset === 'BR' ? 'selected' : '' }}>Brazil (Brasilia)</option>
+                                <option value="SG" {{ $originPreset === 'SG' ? 'selected' : '' }}>Singapore</option>
+                                <option value="TR" {{ $originPreset === 'TR' ? 'selected' : '' }}>Turkey (Ankara)</option>
+                                <option value="IT" {{ $originPreset === 'IT' ? 'selected' : '' }}>Italy (Rome)</option>
+                                <option value="ES" {{ $originPreset === 'ES' ? 'selected' : '' }}>Spain (Madrid)</option>
+                                <option value="NL" {{ $originPreset === 'NL' ? 'selected' : '' }}>Netherlands (Amsterdam)</option>
+                                <option value="BE" {{ $originPreset === 'BE' ? 'selected' : '' }}>Belgium (Brussels)</option>
+                                <option value="CH" {{ $originPreset === 'CH' ? 'selected' : '' }}>Switzerland (Bern)</option>
+                            </select>
+                        </div>
                         <div>
                             <label class="form-label !text-xs">Latitude</label>
-                            <input type="number" step="0.000001" name="origin_lat" class="form-input !py-2" value="{{ old('origin_lat', $shipment->origin_lat) }}" required>
+                            <input type="number" step="0.000001" name="origin_lat" id="origin_lat" class="form-input !py-2" value="{{ old('origin_lat', $shipment->origin_lat) }}" required>
                         </div>
                         <div>
                             <label class="form-label !text-xs">Longitude</label>
-                            <input type="number" step="0.000001" name="origin_lng" class="form-input !py-2" value="{{ old('origin_lng', $shipment->origin_lng) }}" required>
+                            <input type="number" step="0.000001" name="origin_lng" id="origin_lng" class="form-input !py-2" value="{{ old('origin_lng', $shipment->origin_lng) }}" required>
                         </div>
                     </div>
 
                     <div class="space-y-4">
-                        <h4 class="text-sm font-semibold text-cyan-400">Destination coordinates</h4>
+                        <h4 class="text-sm font-semibold text-cyan-400">Destination Location</h4>
+                        <div>
+                            <label class="form-label !text-xs">Country Preset</label>
+                            <select id="destination_country_preset" class="form-select !py-2" onchange="updateCoordinates('destination', this.value)">
+                                <option value="">-- Custom Location --</option>
+                                <option value="US" {{ $destPreset === 'US' ? 'selected' : '' }}>United States (New York)</option>
+                                <option value="UK" {{ $destPreset === 'UK' ? 'selected' : '' }}>United Kingdom (London)</option>
+                                <option value="DE" {{ $destPreset === 'DE' ? 'selected' : '' }}>Germany (Berlin)</option>
+                                <option value="FR" {{ $destPreset === 'FR' ? 'selected' : '' }}>France (Paris)</option>
+                                <option value="CN" {{ $destPreset === 'CN' ? 'selected' : '' }}>China (Beijing)</option>
+                                <option value="CA" {{ $destPreset === 'CA' ? 'selected' : '' }}>Canada (Ottawa)</option>
+                                <option value="AU" {{ $destPreset === 'AU' ? 'selected' : '' }}>Australia (Canberra)</option>
+                                <option value="JP" {{ $destPreset === 'JP' ? 'selected' : '' }}>Japan (Tokyo)</option>
+                                <option value="IN" {{ $destPreset === 'IN' ? 'selected' : '' }}>India (New Delhi)</option>
+                                <option value="NG" {{ $destPreset === 'NG' ? 'selected' : '' }}>Nigeria (Abuja)</option>
+                                <option value="AE" {{ $destPreset === 'AE' ? 'selected' : '' }}>United Arab Emirates (Abu Dhabi)</option>
+                                <option value="SA" {{ $destPreset === 'SA' ? 'selected' : '' }}>Saudi Arabia (Riyadh)</option>
+                                <option value="ZA" {{ $destPreset === 'ZA' ? 'selected' : '' }}>South Africa (Cape Town)</option>
+                                <option value="BR" {{ $destPreset === 'BR' ? 'selected' : '' }}>Brazil (Brasilia)</option>
+                                <option value="SG" {{ $destPreset === 'SG' ? 'selected' : '' }}>Singapore</option>
+                                <option value="TR" {{ $destPreset === 'TR' ? 'selected' : '' }}>Turkey (Ankara)</option>
+                                <option value="IT" {{ $destPreset === 'IT' ? 'selected' : '' }}>Italy (Rome)</option>
+                                <option value="ES" {{ $destPreset === 'ES' ? 'selected' : '' }}>Spain (Madrid)</option>
+                                <option value="NL" {{ $destPreset === 'NL' ? 'selected' : '' }}>Netherlands (Amsterdam)</option>
+                                <option value="BE" {{ $destPreset === 'BE' ? 'selected' : '' }}>Belgium (Brussels)</option>
+                                <option value="CH" {{ $destPreset === 'CH' ? 'selected' : '' }}>Switzerland (Bern)</option>
+                            </select>
+                        </div>
                         <div>
                             <label class="form-label !text-xs">Latitude</label>
-                            <input type="number" step="0.000001" name="destination_lat" class="form-input !py-2" value="{{ old('destination_lat', $shipment->destination_lat) }}" required>
+                            <input type="number" step="0.000001" name="destination_lat" id="destination_lat" class="form-input !py-2" value="{{ old('destination_lat', $shipment->destination_lat) }}" required>
                         </div>
                         <div>
                             <label class="form-label !text-xs">Longitude</label>
-                            <input type="number" step="0.000001" name="destination_lng" class="form-input !py-2" value="{{ old('destination_lng', $shipment->destination_lng) }}" required>
+                            <input type="number" step="0.000001" name="destination_lng" id="destination_lng" class="form-input !py-2" value="{{ old('destination_lng', $shipment->destination_lng) }}" required>
                         </div>
                     </div>
 
                     <div class="space-y-4">
-                        <h4 class="text-sm font-semibold text-emerald-400">Current Position coordinates</h4>
+                        <h4 class="text-sm font-semibold text-emerald-400">Current Position Location</h4>
+                        <div>
+                            <label class="form-label !text-xs">Country Preset</label>
+                            <select id="current_country_preset" class="form-select !py-2" onchange="updateCoordinates('current', this.value)">
+                                <option value="">-- Custom Location --</option>
+                                <option value="US" {{ $currentPreset === 'US' ? 'selected' : '' }}>United States (New York)</option>
+                                <option value="UK" {{ $currentPreset === 'UK' ? 'selected' : '' }}>United Kingdom (London)</option>
+                                <option value="DE" {{ $currentPreset === 'DE' ? 'selected' : '' }}>Germany (Berlin)</option>
+                                <option value="FR" {{ $currentPreset === 'FR' ? 'selected' : '' }}>France (Paris)</option>
+                                <option value="CN" {{ $currentPreset === 'CN' ? 'selected' : '' }}>China (Beijing)</option>
+                                <option value="CA" {{ $currentPreset === 'CA' ? 'selected' : '' }}>Canada (Ottawa)</option>
+                                <option value="AU" {{ $currentPreset === 'AU' ? 'selected' : '' }}>Australia (Canberra)</option>
+                                <option value="JP" {{ $currentPreset === 'JP' ? 'selected' : '' }}>Japan (Tokyo)</option>
+                                <option value="IN" {{ $currentPreset === 'IN' ? 'selected' : '' }}>India (New Delhi)</option>
+                                <option value="NG" {{ $currentPreset === 'NG' ? 'selected' : '' }}>Nigeria (Abuja)</option>
+                                <option value="AE" {{ $currentPreset === 'AE' ? 'selected' : '' }}>United Arab Emirates (Abu Dhabi)</option>
+                                <option value="SA" {{ $currentPreset === 'SA' ? 'selected' : '' }}>Saudi Arabia (Riyadh)</option>
+                                <option value="ZA" {{ $currentPreset === 'ZA' ? 'selected' : '' }}>South Africa (Cape Town)</option>
+                                <option value="BR" {{ $currentPreset === 'BR' ? 'selected' : '' }}>Brazil (Brasilia)</option>
+                                <option value="SG" {{ $currentPreset === 'SG' ? 'selected' : '' }}>Singapore</option>
+                                <option value="TR" {{ $currentPreset === 'TR' ? 'selected' : '' }}>Turkey (Ankara)</option>
+                                <option value="IT" {{ $currentPreset === 'IT' ? 'selected' : '' }}>Italy (Rome)</option>
+                                <option value="ES" {{ $currentPreset === 'ES' ? 'selected' : '' }}>Spain (Madrid)</option>
+                                <option value="NL" {{ $currentPreset === 'NL' ? 'selected' : '' }}>Netherlands (Amsterdam)</option>
+                                <option value="BE" {{ $currentPreset === 'BE' ? 'selected' : '' }}>Belgium (Brussels)</option>
+                                <option value="CH" {{ $currentPreset === 'CH' ? 'selected' : '' }}>Switzerland (Bern)</option>
+                            </select>
+                        </div>
                         <div>
                             <label class="form-label !text-xs">Latitude</label>
-                            <input type="number" step="0.000001" name="current_lat" class="form-input !py-2" value="{{ old('current_lat', $shipment->current_lat) }}" required>
+                            <input type="number" step="0.000001" name="current_lat" id="current_lat" class="form-input !py-2" value="{{ old('current_lat', $shipment->current_lat) }}" required>
                         </div>
                         <div>
                             <label class="form-label !text-xs">Longitude</label>
-                            <input type="number" step="0.000001" name="current_lng" class="form-input !py-2" value="{{ old('current_lng', $shipment->current_lng) }}" required>
+                            <input type="number" step="0.000001" name="current_lng" id="current_lng" class="form-input !py-2" value="{{ old('current_lng', $shipment->current_lng) }}" required>
                         </div>
                     </div>
                 </div>
@@ -183,3 +313,62 @@
     </div>
 </div>
 @endsection
+
+@push('scripts')
+<script>
+    const countryCoords = {
+        'US': { lat: 40.712800, lng: -74.006000 },
+        'UK': { lat: 51.507400, lng: -0.127800 },
+        'CN': { lat: 39.904200, lng: 116.407400 },
+        'DE': { lat: 52.520000, lng: 13.405000 },
+        'FR': { lat: 48.856600, lng: 2.352200 },
+        'CA': { lat: 45.421500, lng: -75.697200 },
+        'AU': { lat: -35.280900, lng: 149.130000 },
+        'JP': { lat: 35.676200, lng: 139.650300 },
+        'IN': { lat: 28.613900, lng: 77.209000 },
+        'NG': { lat: 9.082000, lng: 8.675300 },
+        'AE': { lat: 24.453900, lng: 54.377300 },
+        'SA': { lat: 24.713600, lng: 46.675300 },
+        'ZA': { lat: -33.924900, lng: 18.424100 },
+        'BR': { lat: -15.793800, lng: -47.882800 },
+        'SG': { lat: 1.352100, lng: 103.819800 },
+        'TR': { lat: 39.933400, lng: 32.859700 },
+        'IT': { lat: 41.902800, lng: 12.496400 },
+        'ES': { lat: 40.416800, lng: -3.703800 },
+        'NL': { lat: 52.367600, lng: 4.904100 },
+        'BE': { lat: 50.850300, lng: 4.351700 },
+        'CH': { lat: 46.948000, lng: 7.447400 }
+    };
+
+    function updateCoordinates(type, countryCode) {
+        if (!countryCode || !countryCoords[countryCode]) return;
+        
+        const latInput = document.getElementById(type + '_lat');
+        const lngInput = document.getElementById(type + '_lng');
+        
+        if (latInput && lngInput) {
+            latInput.value = countryCoords[countryCode].lat.toFixed(6);
+            lngInput.value = countryCoords[countryCode].lng.toFixed(6);
+        }
+        
+        // Auto-sync current position if updating origin on edit page (if status is pending)
+        if (type === 'origin') {
+            const statusSelect = document.getElementById('status');
+            if (statusSelect && statusSelect.value === 'pending') {
+                const currentLat = document.getElementById('current_lat');
+                const currentLng = document.getElementById('current_lng');
+                const currentSelect = document.getElementById('current_country_preset');
+                
+                if (currentLat && currentLng) {
+                    currentLat.value = countryCoords[countryCode].lat.toFixed(6);
+                    currentLng.value = countryCoords[countryCode].lng.toFixed(6);
+                }
+                if (currentSelect) {
+                    currentSelect.value = countryCode;
+                }
+            }
+        }
+    }
+</script>
+@endpush
+
