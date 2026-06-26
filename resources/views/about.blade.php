@@ -1,6 +1,6 @@
 @extends('layouts.public')
 
-@section('title', '{{ __('About Us') }}')
+@section('title', __('About Us'))
 @section('meta_description', 'Learn about Blue Orient Logistics - our mission, values, and the team behind the world\'s most reliable shipping platform.')
 
 @section('content')
@@ -20,7 +20,7 @@
                 <span class="text-gradient">{{ __('One Package at a Time') }}</span>
             </h1>
             <p class="text-lg text-slate-400 leading-relaxed animate-fade-in-up delay-200">
-                {{ __('{{ __('Founded') }} with a vision to make global shipping accessible, transparent, and reliable for everyone. We've grown from a small courier service to a worldwide logistics platform trusted by thousands.') }}
+                {{ __("Founded with a vision to make global shipping accessible, transparent, and reliable for everyone. We've grown from a small courier service to a worldwide logistics platform trusted by thousands.") }}
             </p>
         </div>
     </div>

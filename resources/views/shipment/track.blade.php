@@ -1,7 +1,7 @@
 @extends('layouts.public')
 
-@section('title', '{{ __('{{ __('Track') }} Shipment') }}')
-@section('meta_description', '{{ __('Track') }} your Blue Orient Logistics package in real-time with GPS tracking and live animated maps.')
+@section('title', __('Track Shipment'))
+@section('meta_description', __('Track your Blue Orient Logistics package in real-time with GPS tracking and live animated maps.'))
 
 @section('content')
 

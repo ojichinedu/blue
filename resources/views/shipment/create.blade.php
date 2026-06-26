@@ -1,6 +1,6 @@
 @extends('layouts.public')
 
-@section('title', '{{ __('Send a Package') }}')
+@section('title', __('Send a Package'))
 @section('meta_description', 'Create a new shipment with Blue Orient Logistics. Fill in your details and get a tracking number instantly.')
 
 @section('content')

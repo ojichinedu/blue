@@ -1,6 +1,6 @@
 @extends('layouts.public')
 
-@section('title', '{{ __('Track') }}ing ' . $shipment->tracking_number)
+@section('title', __('Tracking') . ' ' . $shipment->tracking_number)
 @section('meta_description', 'Live tracking for shipment ' . $shipment->tracking_number)
 
 @section('content')
@@ -48,7 +48,7 @@
                     <div class="px-6 py-4 border-b border-white/5 flex items-center justify-between">
                         <div class="flex items-center gap-3">
                             <div class="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></div>
-                            <h2 class="text-sm font-semibold text-white">Live {{ __('Track') }}ing Map</h2>
+                            <h2 class="text-sm font-semibold text-white">{{ __('Live Tracking Map') }}</h2>
                         </div>
                         <span class="text-xs text-slate-500" id="last-updated">Updating...</span>
                     </div>
@@ -107,7 +107,7 @@
 
                 {{-- Timeline --}}
                 <div class="glass-card p-6">
-                    <h3 class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-6">{{ __('Track') }}ing History</h3>
+                    <h3 class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-6">{{ __('Tracking History') }}</h3>
                     <div class="space-y-0">
                         @foreach($shipment->updates->reverse() as $index => $update)
                             <div class="timeline-item">
