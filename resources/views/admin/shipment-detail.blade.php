@@ -147,6 +147,59 @@
 
     {{-- Right Column --}}
     <div class="space-y-6">
+        {{-- Billing & Receipt --}}
+        <div class="glass-card p-6 border-blue-500/20 bg-gradient-to-br from-slate-900/50 to-blue-950/10">
+            <h3 class="text-xs font-semibold text-blue-400 uppercase tracking-wider mb-4 flex items-center justify-between">
+                <span>Billing & Receipt</span>
+                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+            </h3>
+            
+            @if($shipment->receipt)
+                <div class="space-y-3 text-sm mb-6">
+                    <div class="flex justify-between"><span class="text-slate-400">Receipt #</span><span class="text-white font-mono font-medium">{{ $shipment->receipt->receipt_number }}</span></div>
+                    <div class="flex justify-between"><span class="text-slate-400">Amount</span><span class="text-emerald-400 font-semibold">${{ number_format($shipment->receipt->amount, 2) }} USD</span></div>
+                    <div class="flex justify-between"><span class="text-slate-400">Method</span><span class="text-white capitalize">{{ str_replace('_', ' ', $shipment->receipt->payment_method) }}</span></div>
+                    <div class="flex justify-between">
+                        <span class="text-slate-400">Status</span>
+                        <span class="badge badge-{{ $shipment->receipt->payment_status === 'paid' ? 'delivered' : ($shipment->receipt->payment_status === 'pending' ? 'pending' : 'cancelled') }}">
+                            <span class="w-1.5 h-1.5 rounded-full bg-current"></span>
+                            {{ ucfirst($shipment->receipt->payment_status) }}
+                        </span>
+                    </div>
+                    @if($shipment->receipt->notes)
+                        <div class="pt-2 border-t border-white/5">
+                            <span class="block text-xs text-slate-500 mb-1">Notes:</span>
+                            <p class="text-xs text-slate-400 leading-relaxed italic">"{{ $shipment->receipt->notes }}"</p>
+                        </div>
+                    @endif
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <a href="{{ route('admin.receipt.show', $shipment->receipt->id) }}" target="_blank" class="btn-primary btn-sm flex items-center justify-center gap-1.5 !py-2.5">
+                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
+                        Print/PDF
+                    </a>
+                    <a href="{{ route('admin.receipt.edit', $shipment->receipt->id) }}" class="btn-secondary btn-sm flex items-center justify-center gap-1.5 !py-2.5">
+                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg>
+                        Edit
+                    </a>
+                    <form action="{{ route('admin.receipt.destroy', $shipment->receipt->id) }}" method="POST" class="col-span-2 mt-1" id="delete-receipt-form">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit" class="w-full btn-secondary btn-sm !text-red-400 !border-red-500/20 hover:!bg-red-500/10 transition-colors flex items-center justify-center gap-1.5" onclick="return confirm('Are you sure you want to delete this receipt?')">
+                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                            Delete Receipt
+                        </button>
+                    </form>
+                </div>
+            @else
+                <p class="text-sm text-slate-400 mb-4">No receipt has been generated for this shipment yet.</p>
+                <a href="{{ route('admin.receipt.create', $shipment->id) }}" class="w-full btn-primary btn-sm flex items-center justify-center gap-1.5">
+                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                    Create Receipt
+                </a>
+            @endif
+        </div>
+
         {{-- Shipment Info --}}
         <div class="glass-card p-6">
             <h3 class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-4">Sender</h3>

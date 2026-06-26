@@ -26,6 +26,7 @@ Route::get('/api/shipment/{trackingNumber}/position', [ShipmentController::class
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::get('/dashboard/shipment/{id}', [DashboardController::class, 'show'])->name('dashboard.shipment');
+    Route::get('/dashboard/receipt/{id}', [\App\Http\Controllers\Admin\ReceiptController::class, 'showClient'])->name('dashboard.receipt.show');
 });
 
 // Profile (Breeze)
@@ -47,6 +48,14 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::put('/shipments/{id}', [AdminDashboardController::class, 'updateShipment'])->name('shipment.update');
     Route::delete('/shipments/{id}', [AdminDashboardController::class, 'destroyShipment'])->name('shipment.destroy');
     Route::post('/shipments/{id}/update', [AdminDashboardController::class, 'addUpdate'])->name('shipment.addUpdate');
+    
+    // Receipts
+    Route::get('/shipments/{shipmentId}/receipt/create', [\App\Http\Controllers\Admin\ReceiptController::class, 'create'])->name('receipt.create');
+    Route::post('/shipments/{shipmentId}/receipt', [\App\Http\Controllers\Admin\ReceiptController::class, 'store'])->name('receipt.store');
+    Route::get('/receipts/{id}/edit', [\App\Http\Controllers\Admin\ReceiptController::class, 'edit'])->name('receipt.edit');
+    Route::put('/receipts/{id}', [\App\Http\Controllers\Admin\ReceiptController::class, 'update'])->name('receipt.update');
+    Route::delete('/receipts/{id}', [\App\Http\Controllers\Admin\ReceiptController::class, 'destroy'])->name('receipt.destroy');
+    Route::get('/receipts/{id}', [\App\Http\Controllers\Admin\ReceiptController::class, 'show'])->name('receipt.show');
 });
 
 require __DIR__.'/auth.php';

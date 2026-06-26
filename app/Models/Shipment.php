@@ -79,6 +79,11 @@ class Shipment extends Model
         return $this->hasOne(ShipmentUpdate::class)->latestOfMany('update_time');
     }
 
+    public function receipt(): \Illuminate\Database\Eloquent\Relations\HasOne
+    {
+        return $this->hasOne(Receipt::class);
+    }
+
     public function scopeForUser($query, $userId)
     {
         return $query->where('user_id', $userId);
