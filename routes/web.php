@@ -57,20 +57,3 @@ Route::get('/clear-cache', function () {
     \Illuminate\Support\Facades\Artisan::call('cache:clear');
     return 'Cache cleared successfully!';
 });
-Route::get('/migrate', function () {
-    try {
-        \Illuminate\Support\Facades\Artisan::call('migrate', ['--force' => true]);
-        return "Migrations executed successfully!";
-    } catch (\Exception $e) {
-        return "Migration error: " . $e->getMessage();
-    }
-});
-
-Route::get('/seed', function () {
-    try {
-        \Illuminate\Support\Facades\Artisan::call('db:seed', ['--force' => true]);
-        return "Database seeded successfully!";
-    } catch (\Exception $e) {
-        return "Seeding error: " . $e->getMessage();
-    }
-});
