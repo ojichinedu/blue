@@ -7,6 +7,7 @@ use App\Models\Shipment;
 use App\Models\ShipmentUpdate;
 use App\Models\User;
 use Illuminate\Http\Request;
+use App\Events\ShipmentPositionUpdated;
 
 class AdminDashboardController extends Controller
 {
@@ -109,6 +110,8 @@ class AdminDashboardController extends Controller
             'update_time' => now(),
         ]);
 
+        event(new ShipmentPositionUpdated($shipment));
+
         return back()->with('success', 'Shipment updated and tracking entry logged successfully.');
     }
 
@@ -154,6 +157,8 @@ class AdminDashboardController extends Controller
         if (isset($statusMap[$normalizedStatus])) {
             $shipment->update(['status' => $statusMap[$normalizedStatus]]);
         }
+
+        event(new ShipmentPositionUpdated($shipment->refresh()));
 
         return back()->with('success', 'Tracking update added successfully.');
     }
@@ -290,6 +295,8 @@ class AdminDashboardController extends Controller
                 'update_time' => now(),
             ]);
         }
+
+        event(new ShipmentPositionUpdated($shipment->refresh()));
 
         return redirect()->route('admin.shipment.show', $shipment->id)->with('success', 'Shipment details updated successfully.');
     }

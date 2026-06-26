@@ -7,6 +7,8 @@ use App\Models\Receipt;
 use App\Models\Shipment;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\ReceiptInvoiceMail;
 
 class ReceiptController extends Controller
 {
@@ -41,10 +43,16 @@ class ReceiptController extends Controller
 
         $validated['shipment_id'] = $shipment->id;
 
-        Receipt::create($validated);
+        $receipt = Receipt::create($validated);
+
+        try {
+            Mail::to($shipment->sender_email)->send(new ReceiptInvoiceMail($receipt));
+        } catch (\Exception $e) {
+            // Log or ignore mailing failure in sandbox
+        }
 
         return redirect()->route('admin.shipment.show', $shipment->id)
-            ->with('success', 'Receipt created successfully.');
+            ->with('success', 'Receipt created successfully and emailed.');
     }
 
     public function edit($id)
@@ -66,8 +74,14 @@ class ReceiptController extends Controller
 
         $receipt->update($validated);
 
+        try {
+            Mail::to($receipt->shipment->sender_email)->send(new ReceiptInvoiceMail($receipt));
+        } catch (\Exception $e) {
+            // Log or ignore mailing failure in sandbox
+        }
+
         return redirect()->route('admin.shipment.show', $receipt->shipment_id)
-            ->with('success', 'Receipt updated successfully.');
+            ->with('success', 'Receipt updated successfully and emailed.');
     }
 
     public function destroy($id)

@@ -175,11 +175,25 @@
             {{-- 4. Map Coordinates & Delivery --}}
             <div>
                 <h3 class="text-lg font-bold text-white mb-4">Route Coordinates & Schedule</h3>
-                <div class="grid md:grid-cols-2 gap-6 mb-4">
+                <div class="grid md:grid-cols-2 gap-6 mb-6">
                     <div>
                         <label for="estimated_delivery" class="form-label">Estimated Delivery Date</label>
                         <input type="date" name="estimated_delivery" id="estimated_delivery" class="form-input" value="{{ old('estimated_delivery', $shipment->estimated_delivery ? $shipment->estimated_delivery->format('Y-m-d') : '') }}" required>
                     </div>
+                    <div class="flex items-end">
+                        <div class="w-full flex items-center gap-3 text-sm text-cyan-400 bg-cyan-950/20 border border-cyan-500/20 px-4 py-3 rounded-xl">
+                            <svg class="w-5 h-5 flex-shrink-0 text-cyan-400 animate-pulse" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                            <div>
+                                <span class="text-slate-400 block text-xs">Calculated Distance</span>
+                                <span class="text-white font-semibold font-mono" id="calculated-distance">—</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mb-6">
+                    <label class="form-label">Route Map (Drag markers to set coordinates visually)</label>
+                    <div id="form-map" style="height: 350px; z-index: 1;" class="rounded-xl border border-white/10 overflow-hidden"></div>
                 </div>
                 <div class="grid md:grid-cols-3 gap-6">
                     <div class="space-y-4">
@@ -340,6 +354,176 @@
         'CH': { lat: 46.948000, lng: 7.447400 }
     };
 
+    // Form Map Initialization
+    const map = L.map('form-map', { zoomControl: true, scrollWheelZoom: true });
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+        attribution: '&copy; OSM &copy; CARTO', subdomains: 'abcd', maxZoom: 19
+    }).addTo(map);
+
+    // Custom icons
+    const originIcon = L.divIcon({
+        className: 'shipment-marker',
+        html: '<div style="width:16px;height:16px;background:#10b981;border-radius:50%;border:3px solid #064e3b;box-shadow:0 0 12px rgba(16,185,129,0.5);"></div>',
+        iconSize: [16, 16],
+        iconAnchor: [8, 8],
+    });
+
+    const destinationIcon = L.divIcon({
+        className: 'shipment-marker',
+        html: '<div style="width:16px;height:16px;background:#f59e0b;border-radius:50%;border:3px solid #78350f;box-shadow:0 0 12px rgba(245,158,11,0.5);"></div>',
+        iconSize: [16, 16],
+        iconAnchor: [8, 8],
+    });
+
+    const currentIcon = L.divIcon({
+        className: 'shipment-marker',
+        html: '<div style="width:16px;height:16px;background:#06b6d4;border-radius:50%;border:3px solid #083344;box-shadow:0 0 12px rgba(6,182,212,0.5);"></div>',
+        iconSize: [16, 16],
+        iconAnchor: [8, 8],
+    });
+
+    // Initial Coordinates
+    let originLatVal = parseFloat(document.getElementById('origin_lat').value) || 40.712800;
+    let originLngVal = parseFloat(document.getElementById('origin_lng').value) || -74.006000;
+    let destLatVal = parseFloat(document.getElementById('destination_lat').value) || 51.507400;
+    let destLngVal = parseFloat(document.getElementById('destination_lng').value) || -0.127800;
+    let currentLatVal = parseFloat(document.getElementById('current_lat').value) || 40.712800;
+    let currentLngVal = parseFloat(document.getElementById('current_lng').value) || -74.006000;
+
+    // Draggable markers
+    const originMarker = L.marker([originLatVal, originLngVal], { icon: originIcon, draggable: true }).addTo(map).bindPopup('Origin (Sender)');
+    const destMarker = L.marker([destLatVal, destLngVal], { icon: destinationIcon, draggable: true }).addTo(map).bindPopup('Destination (Receiver)');
+    const currentMarker = L.marker([currentLatVal, currentLngVal], { icon: currentIcon, draggable: true }).addTo(map).bindPopup('Current Location');
+
+    // Route polyline between markers
+    const routeLine = L.polyline([[originLatVal, originLngVal], [currentLatVal, currentLngVal], [destLatVal, destLngVal]], {
+        color: '#3b82f6',
+        weight: 3,
+        dashArray: '6, 10',
+        opacity: 0.6
+    }).addTo(map);
+
+    function updatePolyline(autoUpdateDate = true) {
+        routeLine.setLatLngs([
+            originMarker.getLatLng(),
+            currentMarker.getLatLng(),
+            destMarker.getLatLng()
+        ]);
+        calculateHaversineETD(autoUpdateDate);
+    }
+
+    // Trigger map update on inputs
+    function syncInputToMarker(type) {
+        const lat = parseFloat(document.getElementById(type + '_lat').value);
+        const lng = parseFloat(document.getElementById(type + '_lng').value);
+        if (!isNaN(lat) && !isNaN(lng)) {
+            if (type === 'origin') originMarker.setLatLng([lat, lng]);
+            if (type === 'destination') destMarker.setLatLng([lat, lng]);
+            if (type === 'current') currentMarker.setLatLng([lat, lng]);
+            updatePolyline(true);
+        }
+    }
+
+    ['origin_lat', 'origin_lng', 'destination_lat', 'destination_lng', 'current_lat', 'current_lng'].forEach(id => {
+        document.getElementById(id).addEventListener('input', () => {
+            const type = id.split('_')[0];
+            syncInputToMarker(type);
+        });
+    });
+
+    // Handle marker drag
+    originMarker.on('drag', function() {
+        const pos = originMarker.getLatLng();
+        document.getElementById('origin_lat').value = pos.lat.toFixed(6);
+        document.getElementById('origin_lng').value = pos.lng.toFixed(6);
+        
+        // Auto sync current position if status is pending
+        const statusSelect = document.getElementById('status');
+        if (!statusSelect || statusSelect.value === 'pending') {
+            currentMarker.setLatLng(pos);
+            document.getElementById('current_lat').value = pos.lat.toFixed(6);
+            document.getElementById('current_lng').value = pos.lng.toFixed(6);
+        }
+        updatePolyline(true);
+    });
+
+    destMarker.on('drag', function() {
+        const pos = destMarker.getLatLng();
+        document.getElementById('destination_lat').value = pos.lat.toFixed(6);
+        document.getElementById('destination_lng').value = pos.lng.toFixed(6);
+        updatePolyline(true);
+    });
+
+    currentMarker.on('drag', function() {
+        const pos = currentMarker.getLatLng();
+        document.getElementById('current_lat').value = pos.lat.toFixed(6);
+        document.getElementById('current_lng').value = pos.lng.toFixed(6);
+        updatePolyline(true);
+    });
+
+    // Fit map bounds
+    const bounds = L.latLngBounds([originMarker.getLatLng(), destMarker.getLatLng()]);
+    map.fitBounds(bounds, { padding: [50, 50] });
+
+    // Haversine calculation & ETD logic
+    function calculateHaversineETD(autoUpdateDate = true) {
+        const oLat = parseFloat(document.getElementById('origin_lat').value);
+        const oLng = parseFloat(document.getElementById('origin_lng').value);
+        const dLat = parseFloat(document.getElementById('destination_lat').value);
+        const dLng = parseFloat(document.getElementById('destination_lng').value);
+
+        if (isNaN(oLat) || isNaN(oLng) || isNaN(dLat) || isNaN(dLng)) return;
+
+        // Haversine Formula
+        const R = 6371; // Earth radius in km
+        const dLatRad = (dLat - oLat) * Math.PI / 180;
+        const dLngRad = (dLng - oLng) * Math.PI / 180;
+        const a = Math.sin(dLatRad / 2) * Math.sin(dLatRad / 2) +
+                  Math.cos(oLat * Math.PI / 180) * Math.cos(dLat * Math.PI / 180) *
+                  Math.sin(dLngRad / 2) * Math.sin(dLngRad / 2);
+        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+        const distance = R * c;
+
+        document.getElementById('calculated-distance').textContent = distance.toFixed(0) + ' km';
+
+        if (!autoUpdateDate) return;
+
+        // ETD Calculations based on package type
+        const typeSelect = document.getElementById('package_type');
+        const packageType = typeSelect ? typeSelect.value : 'parcel';
+
+        let speed = 250; // km per day default for parcel/standard
+        let minDays = 3;
+
+        if (packageType === 'document') {
+            speed = 800; // air/priority
+            minDays = 1;
+        } else if (packageType === 'freight') {
+            speed = 150; // heavy sea/ground
+            minDays = 5;
+        }
+
+        const calculatedDays = Math.max(minDays, Math.ceil(distance / speed));
+        
+        // Auto update delivery date
+        const deliveryInput = document.getElementById('estimated_delivery');
+        if (deliveryInput) {
+            const date = new Date();
+            date.setDate(date.getDate() + calculatedDays);
+            const yyyy = date.getFullYear();
+            const mm = String(date.getMonth() + 1).padStart(2, '0');
+            const dd = String(date.getDate()).padStart(2, '0');
+            deliveryInput.value = `${yyyy}-${mm}-${dd}`;
+        }
+    }
+
+    // Trigger update on package type change
+    const packageTypeSelect = document.getElementById('package_type');
+    if (packageTypeSelect) {
+        packageTypeSelect.addEventListener('change', () => calculateHaversineETD(true));
+    }
+
+    // Presets handler
     function updateCoordinates(type, countryCode) {
         if (!countryCode || !countryCoords[countryCode]) return;
         
@@ -347,8 +531,14 @@
         const lngInput = document.getElementById(type + '_lng');
         
         if (latInput && lngInput) {
-            latInput.value = countryCoords[countryCode].lat.toFixed(6);
-            lngInput.value = countryCoords[countryCode].lng.toFixed(6);
+            const lat = countryCoords[countryCode].lat;
+            const lng = countryCoords[countryCode].lng;
+            latInput.value = lat.toFixed(6);
+            lngInput.value = lng.toFixed(6);
+            
+            if (type === 'origin') originMarker.setLatLng([lat, lng]);
+            if (type === 'destination') destMarker.setLatLng([lat, lng]);
+            if (type === 'current') currentMarker.setLatLng([lat, lng]);
         }
         
         // Auto-sync current position if updating origin on edit page (if status is pending)
@@ -360,15 +550,22 @@
                 const currentSelect = document.getElementById('current_country_preset');
                 
                 if (currentLat && currentLng) {
-                    currentLat.value = countryCoords[countryCode].lat.toFixed(6);
-                    currentLng.value = countryCoords[countryCode].lng.toFixed(6);
+                    const lat = countryCoords[countryCode].lat;
+                    const lng = countryCoords[countryCode].lng;
+                    currentLat.value = lat.toFixed(6);
+                    currentLng.value = lng.toFixed(6);
+                    currentMarker.setLatLng([lat, lng]);
                 }
                 if (currentSelect) {
                     currentSelect.value = countryCode;
                 }
             }
         }
+        updatePolyline(true);
     }
+
+    // Initial calculation (do not auto-update the date)
+    updatePolyline(false);
 </script>
 @endpush
 
