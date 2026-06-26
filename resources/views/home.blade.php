@@ -178,7 +178,7 @@
         </p>
         <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
             <a href="{{ route('shipment.create') }}" class="btn-primary text-lg px-10 py-4" id="cta-send-btn">
-                {{ __('Get Started — It's Free') }}
+                {{ __("Get Started — It's Free") }}
             </a>
             <a href="{{ route('services') }}" class="btn-secondary text-lg px-10 py-4" id="cta-services-btn">
                 {{ __('View Pricing') }}
