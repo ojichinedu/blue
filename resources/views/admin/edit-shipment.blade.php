@@ -1,0 +1,185 @@
+@extends('layouts.admin')
+
+@section('title', 'Edit Shipment Details')
+@section('page_title', 'Edit Shipment ' . $shipment->tracking_number)
+
+@section('content')
+<div class="max-w-4xl mx-auto">
+    <div class="mb-6 flex justify-between items-center">
+        <a href="{{ route('admin.shipment.show', $shipment->id) }}" class="btn-secondary btn-sm flex items-center gap-2">
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+            </svg>
+            Back to Shipment Details
+        </a>
+    </div>
+
+    <div class="glass-card p-8">
+        <form action="{{ route('admin.shipment.updateDetails', $shipment->id) }}" method="POST" id="edit-shipment-form">
+            @csrf
+            @method('PUT')
+
+            {{-- 1. Client / User Association --}}
+            <div class="border-b border-white/5 pb-6 mb-6">
+                <h3 class="text-lg font-bold text-white mb-4">Client Association</h3>
+                <div class="grid md:grid-cols-2 gap-6">
+                    <div>
+                        <label for="user_id" class="form-label">Associate Customer User</label>
+                        <select name="user_id" id="user_id" class="form-select">
+                            <option value="">Guest (No Associated User Account)</option>
+                            @foreach($users as $user)
+                                <option value="{{ $user->id }}" {{ old('user_id', $shipment->user_id) == $user->id ? 'selected' : '' }}>
+                                    {{ $user->name }} ({{ $user->email }})
+                                </option>
+                            @endforeach
+                        </select>
+                        <p class="text-xs text-slate-500 mt-1">Select a customer account to let them track this shipment in their dashboard.</p>
+                    </div>
+                </div>
+            </div>
+
+            {{-- 2. Sender and Receiver Details --}}
+            <div class="border-b border-white/5 pb-6 mb-6">
+                <div class="grid md:grid-cols-2 gap-8">
+                    {{-- Sender --}}
+                    <div>
+                        <h3 class="text-lg font-bold text-white mb-4">Sender Details</h3>
+                        <div class="space-y-4">
+                            <div>
+                                <label for="sender_name" class="form-label">Sender Name</label>
+                                <input type="text" name="sender_name" id="sender_name" class="form-input" value="{{ old('sender_name', $shipment->sender_name) }}" required>
+                            </div>
+                            <div>
+                                <label for="sender_email" class="form-label">Sender Email</label>
+                                <input type="email" name="sender_email" id="sender_email" class="form-input" value="{{ old('sender_email', $shipment->sender_email) }}" required>
+                            </div>
+                            <div>
+                                <label for="sender_phone" class="form-label">Sender Phone</label>
+                                <input type="text" name="sender_phone" id="sender_phone" class="form-input" value="{{ old('sender_phone', $shipment->sender_phone) }}" required>
+                            </div>
+                            <div>
+                                <label for="sender_address" class="form-label">Sender Address</label>
+                                <textarea name="sender_address" id="sender_address" rows="3" class="form-input" required>{{ old('sender_address', $shipment->sender_address) }}</textarea>
+                            </div>
+                        </div>
+                    </div>
+
+                    {{-- Receiver --}}
+                    <div>
+                        <h3 class="text-lg font-bold text-white mb-4">Receiver Details</h3>
+                        <div class="space-y-4">
+                            <div>
+                                <label for="receiver_name" class="form-label">Receiver Name</label>
+                                <input type="text" name="receiver_name" id="receiver_name" class="form-input" value="{{ old('receiver_name', $shipment->receiver_name) }}" required>
+                            </div>
+                            <div>
+                                <label for="receiver_email" class="form-label">Receiver Email</label>
+                                <input type="email" name="receiver_email" id="receiver_email" class="form-input" value="{{ old('receiver_email', $shipment->receiver_email) }}" required>
+                            </div>
+                            <div>
+                                <label for="receiver_phone" class="form-label">Receiver Phone</label>
+                                <input type="text" name="receiver_phone" id="receiver_phone" class="form-input" value="{{ old('receiver_phone', $shipment->receiver_phone) }}" required>
+                            </div>
+                            <div>
+                                <label for="receiver_address" class="form-label">Receiver Address</label>
+                                <textarea name="receiver_address" id="receiver_address" rows="3" class="form-input" required>{{ old('receiver_address', $shipment->receiver_address) }}</textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {{-- 3. Package & Status Details --}}
+            <div class="border-b border-white/5 pb-6 mb-6">
+                <h3 class="text-lg font-bold text-white mb-4">Package & Shipping Details</h3>
+                <div class="grid md:grid-cols-3 gap-6">
+                    <div>
+                        <label for="package_type" class="form-label">Package Type</label>
+                        <select name="package_type" id="package_type" class="form-select" required>
+                            <option value="parcel" {{ old('package_type', $shipment->package_type) == 'parcel' ? 'selected' : '' }}>Parcel</option>
+                            <option value="document" {{ old('package_type', $shipment->package_type) == 'document' ? 'selected' : '' }}>Document</option>
+                            <option value="freight" {{ old('package_type', $shipment->package_type) == 'freight' ? 'selected' : '' }}>Freight</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="weight" class="form-label">Weight (kg)</label>
+                        <input type="number" step="0.01" name="weight" id="weight" class="form-input" value="{{ old('weight', $shipment->weight) }}">
+                    </div>
+                    <div>
+                        <label for="status" class="form-label">Status</label>
+                        <select name="status" id="status" class="form-select" required>
+                            <option value="pending" {{ old('status', $shipment->status) == 'pending' ? 'selected' : '' }}>Pending</option>
+                            <option value="picked_up" {{ old('status', $shipment->status) == 'picked_up' ? 'selected' : '' }}>Picked Up</option>
+                            <option value="in_transit" {{ old('status', $shipment->status) == 'in_transit' ? 'selected' : '' }}>In Transit</option>
+                            <option value="out_for_delivery" {{ old('status', $shipment->status) == 'out_for_delivery' ? 'selected' : '' }}>Out for Delivery</option>
+                            <option value="delivered" {{ old('status', $shipment->status) == 'delivered' ? 'selected' : '' }}>Delivered</option>
+                            <option value="cancelled" {{ old('status', $shipment->status) == 'cancelled' ? 'selected' : '' }}>Cancelled</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="mt-4">
+                    <label for="package_description" class="form-label">Package Description</label>
+                    <input type="text" name="package_description" id="package_description" class="form-input" value="{{ old('package_description', $shipment->package_description) }}">
+                </div>
+            </div>
+
+            {{-- 4. Map Coordinates & Delivery --}}
+            <div>
+                <h3 class="text-lg font-bold text-white mb-4">Route Coordinates & Schedule</h3>
+                <div class="grid md:grid-cols-2 gap-6 mb-4">
+                    <div>
+                        <label for="estimated_delivery" class="form-label">Estimated Delivery Date</label>
+                        <input type="date" name="estimated_delivery" id="estimated_delivery" class="form-input" value="{{ old('estimated_delivery', $shipment->estimated_delivery ? $shipment->estimated_delivery->format('Y-m-d') : '') }}" required>
+                    </div>
+                </div>
+                <div class="grid md:grid-cols-3 gap-6">
+                    <div class="space-y-4">
+                        <h4 class="text-sm font-semibold text-blue-400">Origin coordinates</h4>
+                        <div>
+                            <label class="form-label !text-xs">Latitude</label>
+                            <input type="number" step="0.000001" name="origin_lat" class="form-input !py-2" value="{{ old('origin_lat', $shipment->origin_lat) }}" required>
+                        </div>
+                        <div>
+                            <label class="form-label !text-xs">Longitude</label>
+                            <input type="number" step="0.000001" name="origin_lng" class="form-input !py-2" value="{{ old('origin_lng', $shipment->origin_lng) }}" required>
+                        </div>
+                    </div>
+
+                    <div class="space-y-4">
+                        <h4 class="text-sm font-semibold text-cyan-400">Destination coordinates</h4>
+                        <div>
+                            <label class="form-label !text-xs">Latitude</label>
+                            <input type="number" step="0.000001" name="destination_lat" class="form-input !py-2" value="{{ old('destination_lat', $shipment->destination_lat) }}" required>
+                        </div>
+                        <div>
+                            <label class="form-label !text-xs">Longitude</label>
+                            <input type="number" step="0.000001" name="destination_lng" class="form-input !py-2" value="{{ old('destination_lng', $shipment->destination_lng) }}" required>
+                        </div>
+                    </div>
+
+                    <div class="space-y-4">
+                        <h4 class="text-sm font-semibold text-emerald-400">Current Position coordinates</h4>
+                        <div>
+                            <label class="form-label !text-xs">Latitude</label>
+                            <input type="number" step="0.000001" name="current_lat" class="form-input !py-2" value="{{ old('current_lat', $shipment->current_lat) }}" required>
+                        </div>
+                        <div>
+                            <label class="form-label !text-xs">Longitude</label>
+                            <input type="number" step="0.000001" name="current_lng" class="form-input !py-2" value="{{ old('current_lng', $shipment->current_lng) }}" required>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-8 flex justify-end">
+                <button type="submit" class="btn-primary flex items-center gap-2">
+                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                    </svg>
+                    Save Changes
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+@endsection

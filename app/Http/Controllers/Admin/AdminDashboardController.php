@@ -167,4 +167,130 @@ class AdminDashboardController extends Controller
 
         return redirect()->route('admin.shipments')->with('success', 'Shipment deleted successfully.');
     }
+
+    public function createShipment()
+    {
+        $users = User::where('is_admin', false)->orderBy('name')->get();
+        return view('admin.create-shipment', compact('users'));
+    }
+
+    public function storeShipment(Request $request)
+    {
+        $validated = $request->validate([
+            'user_id' => 'nullable|exists:users,id',
+            'sender_name' => 'required|string|max:255',
+            'sender_email' => 'required|email|max:255',
+            'sender_phone' => 'required|string|max:20',
+            'sender_address' => 'required|string|max:500',
+            'receiver_name' => 'required|string|max:255',
+            'receiver_email' => 'required|email|max:255',
+            'receiver_phone' => 'required|string|max:20',
+            'receiver_address' => 'required|string|max:500',
+            'package_description' => 'nullable|string|max:500',
+            'weight' => 'nullable|numeric|min:0.01|max:9999',
+            'package_type' => 'required|in:document,parcel,freight',
+            'status' => 'required|in:pending,picked_up,in_transit,out_for_delivery,delivered,cancelled',
+            'origin_lat' => 'required|numeric|between:-90,90',
+            'origin_lng' => 'required|numeric|between:-180,180',
+            'destination_lat' => 'required|numeric|between:-90,90',
+            'destination_lng' => 'required|numeric|between:-180,180',
+            'current_lat' => 'required|numeric|between:-90,90',
+            'current_lng' => 'required|numeric|between:-180,180',
+            'estimated_delivery' => 'required|date',
+        ]);
+
+        $shipment = Shipment::create($validated);
+
+        if ($validated['status'] === 'delivered') {
+            $shipment->update(['actual_delivery' => now()]);
+        }
+
+        // Create initial tracking update
+        $locationMap = [
+            'pending' => 'Origin Hub',
+            'picked_up' => 'Sender Location',
+            'in_transit' => 'In Transit',
+            'out_for_delivery' => 'Local Distribution Center',
+            'delivered' => 'Receiver Address',
+            'cancelled' => 'Cancelled Location'
+        ];
+
+        ShipmentUpdate::create([
+            'shipment_id' => $shipment->id,
+            'status' => $validated['status'],
+            'location_name' => $locationMap[$validated['status']] ?? 'Hub',
+            'description' => 'Shipment created and registered in status ' . str_replace('_', ' ', $validated['status']),
+            'lat' => $validated['current_lat'],
+            'lng' => $validated['current_lng'],
+            'update_time' => now(),
+        ]);
+
+        return redirect()->route('admin.shipments')->with('success', 'Shipment created successfully! Tracking number: ' . $shipment->tracking_number);
+    }
+
+    public function editShipment($id)
+    {
+        $shipment = Shipment::findOrFail($id);
+        $users = User::where('is_admin', false)->orderBy('name')->get();
+        return view('admin.edit-shipment', compact('shipment', 'users'));
+    }
+
+    public function updateShipmentDetails(Request $request, $id)
+    {
+        $shipment = Shipment::findOrFail($id);
+
+        $validated = $request->validate([
+            'user_id' => 'nullable|exists:users,id',
+            'sender_name' => 'required|string|max:255',
+            'sender_email' => 'required|email|max:255',
+            'sender_phone' => 'required|string|max:20',
+            'sender_address' => 'required|string|max:500',
+            'receiver_name' => 'required|string|max:255',
+            'receiver_email' => 'required|email|max:255',
+            'receiver_phone' => 'required|string|max:20',
+            'receiver_address' => 'required|string|max:500',
+            'package_description' => 'nullable|string|max:500',
+            'weight' => 'nullable|numeric|min:0.01|max:9999',
+            'package_type' => 'required|in:document,parcel,freight',
+            'status' => 'required|in:pending,picked_up,in_transit,out_for_delivery,delivered,cancelled',
+            'origin_lat' => 'required|numeric|between:-90,90',
+            'origin_lng' => 'required|numeric|between:-180,180',
+            'destination_lat' => 'required|numeric|between:-90,90',
+            'destination_lng' => 'required|numeric|between:-180,180',
+            'current_lat' => 'required|numeric|between:-90,90',
+            'current_lng' => 'required|numeric|between:-180,180',
+            'estimated_delivery' => 'required|date',
+        ]);
+
+        $statusChanged = $shipment->status !== $validated['status'];
+
+        $shipment->update($validated);
+
+        if ($validated['status'] === 'delivered' && !$shipment->actual_delivery) {
+            $shipment->update(['actual_delivery' => now()]);
+        }
+
+        if ($statusChanged) {
+            $locationMap = [
+                'pending' => 'Origin Hub',
+                'picked_up' => 'Sender Location',
+                'in_transit' => 'In Transit',
+                'out_for_delivery' => 'Local Distribution Center',
+                'delivered' => 'Receiver Address',
+                'cancelled' => 'Cancelled Location'
+            ];
+
+            ShipmentUpdate::create([
+                'shipment_id' => $shipment->id,
+                'status' => $validated['status'],
+                'location_name' => $locationMap[$validated['status']] ?? 'Hub',
+                'description' => 'Status updated to ' . str_replace('_', ' ', $validated['status']) . ' by Admin.',
+                'lat' => $validated['current_lat'],
+                'lng' => $validated['current_lng'],
+                'update_time' => now(),
+            ]);
+        }
+
+        return redirect()->route('admin.shipment.show', $shipment->id)->with('success', 'Shipment details updated successfully.');
+    }
 }

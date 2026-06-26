@@ -39,7 +39,11 @@ Route::middleware('auth')->group(function () {
 Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/', [AdminDashboardController::class, 'index'])->name('dashboard');
     Route::get('/shipments', [AdminDashboardController::class, 'shipments'])->name('shipments');
+    Route::get('/shipments/create', [AdminDashboardController::class, 'createShipment'])->name('shipment.create');
+    Route::post('/shipments', [AdminDashboardController::class, 'storeShipment'])->name('shipment.store');
     Route::get('/shipments/{id}', [AdminDashboardController::class, 'showShipment'])->name('shipment.show');
+    Route::get('/shipments/{id}/edit', [AdminDashboardController::class, 'editShipment'])->name('shipment.edit');
+    Route::put('/shipments/{id}/edit', [AdminDashboardController::class, 'updateShipmentDetails'])->name('shipment.updateDetails');
     Route::put('/shipments/{id}', [AdminDashboardController::class, 'updateShipment'])->name('shipment.update');
     Route::delete('/shipments/{id}', [AdminDashboardController::class, 'destroyShipment'])->name('shipment.destroy');
     Route::post('/shipments/{id}/update', [AdminDashboardController::class, 'addUpdate'])->name('shipment.addUpdate');
