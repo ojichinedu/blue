@@ -1,4 +1,13 @@
 <x-guest-layout>
+    <div class="mb-8 text-center">
+        <h2 class="text-3xl font-extrabold text-white" style="font-family: 'Outfit', sans-serif;">
+            {{ __('Create Account') }}
+        </h2>
+        <p class="text-slate-400 mt-2 text-sm">
+            {{ __('Join Blue Orient Logistics today') }}
+        </p>
+    </div>
+
     <form method="POST" action="{{ route('register') }}">
         @csrf
 
@@ -10,43 +19,44 @@
         </div>
 
         <!-- Email Address -->
-        <div class="mt-4">
+        <div class="mt-5">
             <x-input-label for="email" :value="__('Email')" />
             <x-text-input id="email" class="block mt-1 w-full" type="email" name="email" :value="old('email')" required autocomplete="username" />
             <x-input-error :messages="$errors->get('email')" class="mt-2" />
         </div>
 
         <!-- Password -->
-        <div class="mt-4">
+        <div class="mt-5">
             <x-input-label for="password" :value="__('Password')" />
-
             <x-text-input id="password" class="block mt-1 w-full"
                             type="password"
                             name="password"
                             required autocomplete="new-password" />
-
             <x-input-error :messages="$errors->get('password')" class="mt-2" />
         </div>
 
         <!-- Confirm Password -->
-        <div class="mt-4">
+        <div class="mt-5">
             <x-input-label for="password_confirmation" :value="__('Confirm Password')" />
-
             <x-text-input id="password_confirmation" class="block mt-1 w-full"
                             type="password"
                             name="password_confirmation" required autocomplete="new-password" />
-
             <x-input-error :messages="$errors->get('password_confirmation')" class="mt-2" />
         </div>
 
-        <div class="flex items-center justify-end mt-4">
-            <a class="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" href="{{ route('login') }}">
-                {{ __('Already registered?') }}
-            </a>
-
-            <x-primary-button class="ms-4">
+        <div class="mt-8">
+            <x-primary-button class="w-full py-3.5 text-base">
                 {{ __('Register') }}
             </x-primary-button>
         </div>
     </form>
+
+    <div class="mt-6 text-center text-sm">
+        <p class="text-slate-400">
+            {{ __('Already registered?') }}
+            <a href="{{ route('login') }}" class="text-blue-400 hover:text-blue-300 font-semibold transition-colors">
+                {{ __('Log in') }}
+            </a>
+        </p>
+    </div>
 </x-guest-layout>
