@@ -54,24 +54,10 @@ Route::get('/clear-cache', function () {
     return 'Cache cleared successfully!';
 });
 Route::get('/migrate', function () {
-    $dbPath = database_path('database.sqlite');
-    $message = '';
-    if (!file_exists($dbPath)) {
-        if (!is_dir(dirname($dbPath))) {
-            mkdir(dirname($dbPath), 0775, true);
-        }
-        touch($dbPath);
-        chmod($dbPath, 0666);
-        $message .= "Database file created successfully. ";
-    } else {
-        $message .= "Database file already exists. ";
-    }
-
     try {
         \Illuminate\Support\Facades\Artisan::call('migrate', ['--force' => true]);
-        $message .= "Migrations executed successfully!";
-        return $message;
+        return "Migrations executed successfully!";
     } catch (\Exception $e) {
-        return $message . "Migration error: " . $e->getMessage();
+        return "Migration error: " . $e->getMessage();
     }
 });
