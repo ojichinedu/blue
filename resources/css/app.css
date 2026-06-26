@@ -435,15 +435,15 @@ nav[role="navigation"] span[aria-current="page"] > span {
    ═══════════════════════════════════════════════ */
 
 .light-mode body {
-    background-color: #f8fafc !important;
+    background-color: #f1f5f9 !important;
     color: #0f172a !important;
 }
 
 /* Navbar */
 .light-mode nav {
-    background-color: rgba(255, 255, 255, 0.95) !important;
-    border-color: #e2e8f0 !important;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.02) !important;
+    background-color: rgba(241, 245, 249, 0.95) !important;
+    border-color: #cbd5e1 !important;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05) !important;
 }
 
 .light-mode .nav-link {
@@ -479,10 +479,10 @@ nav[role="navigation"] span[aria-current="page"] > span {
 /* Cards & Containers */
 .light-mode .glass-card,
 .light-mode .stat-card {
-    background: #ffffff !important;
-    border-color: #e2e8f0 !important;
-    color: #334155 !important;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.02) !important;
+    background: rgba(255, 255, 255, 0.9) !important;
+    border-color: #cbd5e1 !important;
+    color: #1e293b !important;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05) !important;
 }
 
 .light-mode .stat-card:hover {
@@ -554,8 +554,8 @@ nav[role="navigation"] span[aria-current="page"] > span {
 
 /* Footer */
 .light-mode footer {
-    background-color: #f1f5f9 !important;
-    border-color: #e2e8f0 !important;
+    background-color: #e2e8f0 !important;
+    border-color: #cbd5e1 !important;
 }
 
 .light-mode footer p,
@@ -570,8 +570,8 @@ nav[role="navigation"] span[aria-current="page"] > span {
 
 /* Admin Sidebar */
 .light-mode aside {
-    background-color: #ffffff !important;
-    border-color: #e2e8f0 !important;
+    background-color: rgba(255, 255, 255, 0.9) !important;
+    border-color: #cbd5e1 !important;
 }
 
 .light-mode .admin-nav-link {
@@ -615,8 +615,8 @@ nav[role="navigation"] span[aria-current="page"] > span {
 .light-mode [class*="to-slate-950"],
 .light-mode [class*="from-blue-900/20"],
 .light-mode [class*="from-blue-900/10"] {
-    background-image: radial-gradient(circle at top, rgba(59, 130, 246, 0.04), #f8fafc, #f8fafc) !important;
-    background-color: #f8fafc !important;
+    background-image: radial-gradient(circle at top, rgba(59, 130, 246, 0.03), #f1f5f9, #f1f5f9) !important;
+    background-color: #f1f5f9 !important;
 }
 
 .light-mode .hero-glow {
