@@ -34,7 +34,7 @@ class DashboardController extends Controller
 
     public function show($id)
     {
-        $shipment = Shipment::with('updates')
+        $shipment = Shipment::with(['updates', 'receipt'])
             ->forUser(Auth::id())
             ->findOrFail($id);
 

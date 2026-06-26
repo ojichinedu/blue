@@ -60,7 +60,7 @@ class AdminDashboardController extends Controller
 
     public function showShipment($id)
     {
-        $shipment = Shipment::with(['updates', 'user'])->findOrFail($id);
+        $shipment = Shipment::with(['updates', 'user', 'receipt'])->findOrFail($id);
 
         return view('admin.shipment-detail', compact('shipment'));
     }
