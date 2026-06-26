@@ -187,7 +187,7 @@
         <div class="space-y-4">
             @php
                 $faqs = [
-                    ['How do I track my shipment?', 'You can track your shipment using the tracking number provided when you create a shipment. Simply enter it on our {{ __('Track') }} page to see real-time location on an interactive map with animated movement.'],
+                    ['How do I track my shipment?', 'You can track your shipment using the tracking number provided when you create a shipment. Simply enter it on our ' . __('Track') . ' page to see real-time location on an interactive map with animated movement.'],
                     ['What is the maximum package weight?', 'For standard and express shipping, the maximum weight is 70 kg. For freight services, we can handle shipments up to 20,000 kg. Contact us for custom requirements.'],
                     ['Do you offer insurance?', 'Yes! All shipments include basic insurance. Express shipments are covered up to $5,000, standard up to $1,000. Additional coverage is available on request.'],
                     ['How long does international shipping take?', 'International delivery times vary by destination. Express international takes 2-5 days, standard international 7-14 days. You can track your package in real-time on our map.'],
