@@ -45,14 +45,14 @@ class ReceiptController extends Controller
 
         $receipt = Receipt::create($validated);
 
-        try {
-            Mail::to($shipment->sender_email)->send(new ReceiptInvoiceMail($receipt));
-        } catch (\Exception $e) {
-            // Log or ignore mailing failure in sandbox
-        }
+        // try {
+        //     Mail::to($shipment->sender_email)->send(new ReceiptInvoiceMail($receipt));
+        // } catch (\Exception $e) {
+        //     // Log or ignore mailing failure in sandbox
+        // }
 
         return redirect()->route('admin.shipment.show', $shipment->id)
-            ->with('success', 'Receipt created successfully and emailed.');
+            ->with('success', 'Receipt created successfully.');
     }
 
     public function edit($id)
@@ -74,14 +74,14 @@ class ReceiptController extends Controller
 
         $receipt->update($validated);
 
-        try {
-            Mail::to($receipt->shipment->sender_email)->send(new ReceiptInvoiceMail($receipt));
-        } catch (\Exception $e) {
-            // Log or ignore mailing failure in sandbox
-        }
+        // try {
+        //     Mail::to($receipt->shipment->sender_email)->send(new ReceiptInvoiceMail($receipt));
+        // } catch (\Exception $e) {
+        //     // Log or ignore mailing failure in sandbox
+        // }
 
         return redirect()->route('admin.shipment.show', $receipt->shipment_id)
-            ->with('success', 'Receipt updated successfully and emailed.');
+            ->with('success', 'Receipt updated successfully.');
     }
 
     public function destroy($id)
